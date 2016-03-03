@@ -1,0 +1,90 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta 	charset="gbk">
+	<title>输出</title>
+</head>
+<body>
+<?php
+	$host='127.0.0.1';
+	$user='root';
+	$pass='';
+	$link=mysql_connect($host,$user,$pass);
+	if($link){
+		//echo "数据库连接成功！";
+	}
+	mysql_select_db('test');
+	$i=$_GET["number"];
+		echo $i.'<br>';
+	
+	if(!$i)
+		echo "请输入电话号码。";
+	else if(preg_match('/^1[34578]{1}\d{9}/', $i)) {
+		//echo "号码字段合法。";
+		/*$url="https://tcc.taobao.com/cc/json/mobile_tel_segment.htm?tel=".$i;
+		$content=file_get_contents($url);
+*/
+		
+		//print_r($content);
+	}
+	
+	else echo "号码字段不合法。";//校验合法性
+	/* if(!empty($content)){        //格式化得到的数据使其可用
+			preg_match_all("/(\w+):'([^']+)/", $content, $res);
+				
+			$res=array_combine($res[1],$res[2]);
+			$res=implode('',$res);
+			
+			//var_dump($res);
+	}
+
+	$number=substr($i,0,7);
+	$sms1= array('province'=>'' );
+	$sms2= array('supplier'=>'' );
+	$sms1['province']=substr($content, "56","4");
+	$sms2['supplier']=substr($content, "77","8");
+	$sms1=implode('', $sms1);
+	$sms2=implode('',$sms2);
+	//echo $sms1;
+	//echo $sms2;*/
+	$url="https://tcc.taobao.com/cc/json/mobile_tel_segment.htm?tel=".$i;
+	$content=file_get_contents($url);
+	$number=substr($i,0,7);
+	
+	$sms1= array('province'=>'' );
+	$sms2= array('supplier'=>'' );
+	$sms1['province']=substr($content, "56","4");
+	$sms2['supplier']=substr($content, "77","8");
+	$sms1=implode('', $sms1);
+	$sms2=implode('',$sms2);
+	$result=mysql_query("SELECT*FROM f1 WHERE number=$number");
+	$row=mysql_fetch_array($result);
+	if (!$row){
+		echo $sms1.'<br>'.$sms2.'<br>'."数据来源于网络";
+		$sql="INSERT INTO f1 VALUES(null,'$number','$sms1','$sms2')";
+	
+		mysql_query($sql)or die (mysql_error());
+	}
+	else{
+		echo $sms1.'<br>'.$sms2.'<br>'."数据来源于本地";
+
+	}
+	//$row=mysql_query('select*from f1 ');
+	//$data=mysql_fetch_array($row);
+	//var_dump($data);
+	/*function get_mobile_area($i){
+		//$sms= array('province'=>'','supplier'=>'' );
+		$url="https://tcc.taobao.com/cc/json/mobile_tel_segment.htm?tel=".$i;
+		$content=file_get_contents($url);
+
+		var_dump($content);
+		//$sms['province']=substr($content, "56","4");
+		//$sms['supplier']=substr($content, "81","4");
+		//return $sms;
+	}
+*/
+?>
+	
+	
+</body>
+</html>
